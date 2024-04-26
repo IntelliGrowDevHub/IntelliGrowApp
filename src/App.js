@@ -1,24 +1,28 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import Login from './Login'; 
+import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import LiveDataVisualization from './LiveDataVisualization';
+
+const theme = createTheme();
 
 function App() {
+  const [isLoggedIn, setLoggedIn] = useState(false);
+
+  const handleLogin = (isSuccessful) => {
+    setLoggedIn(isSuccessful);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <div style={{ textAlign: 'center', padding: '20px' }}>
+        {isLoggedIn ? (
+          <LiveDataVisualization /> // Use the LiveDataVisualization component
+        ) : (
+          <Login onLogin={handleLogin} />
+        )}
+      </div>
+    </ThemeProvider>
   );
 }
 
