@@ -12,23 +12,9 @@ const Login = ({ onLogin }) => {
   const [isRegistering, setIsRegistering] = useState(false); // State to track registration mode
   const theme = useTheme();
 
-  const handleLogin = async () => {
-    try {
-      const response = await axios.post('/api/login', { username, password });
-      if (response.status === 200) {
-        onLogin(true);
-      } else {
-        onLogin(false);
-      }
-    } catch (error) {
-      console.error('Error during login:', error);
-      onLogin(false);
-    }
-  };
-  
   const handleRegister = async () => {
     try {
-      const response = await axios.post('/api/register', { username, password });
+      const response = await axios.post('/api/register', { username, email, api_key: channelId, channel_id: apiKey, password });
       if (response.status === 200) {
         // If registration is successful, automatically login the user
         handleLogin();
@@ -42,6 +28,20 @@ const Login = ({ onLogin }) => {
     }
   };
   
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post('/api/login', { username, password });
+      if (response.status === 200) {
+        onLogin(true);
+      } else {
+        onLogin(false);
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+      onLogin(false);
+    }
+  };
+
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       if (isRegistering) {
@@ -70,17 +70,8 @@ const Login = ({ onLogin }) => {
       {/* Inside the Paper component of the Login component*/}
       <Paper elevation={3} style={{ flex: '0 0 30%', padding: '20px', backgroundColor: theme.palette.mode === 'dark' ? '#424242' : 'rgba(255, 255, 255, 0.8)', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
         <Typography variant="h5" gutterBottom>
-          Register
+          {isRegistering ? 'Register' : 'Login'}
         </Typography>
-        <TextField
-          label="Username"
-          fullWidth
-          margin="normal"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          color={theme.palette.mode === 'dark' ? 'secondary' : 'primary'}
-        />
-        {/* Add the additional fields for email, channelId, and apiKey here */}
         {isRegistering && (
           <>
             <TextField
@@ -109,7 +100,14 @@ const Login = ({ onLogin }) => {
             />
           </>
         )}
-        {/* Rest of the registration form */}
+        <TextField
+          label="Username"
+          fullWidth
+          margin="normal"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          color={theme.palette.mode === 'dark' ? 'secondary' : 'primary'}
+        />
         <TextField
           label="Password"
           fullWidth
