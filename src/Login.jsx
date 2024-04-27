@@ -1,54 +1,38 @@
 import React, { useState } from 'react';
-import { TextField, Button, Paper, Typography, useTheme } from '@mui/material';
-import axios from 'axios';
+import { TextField, Button, Paper, useTheme, Typography } from '@mui/material';
 import backgroundImage from './intelligrow-high-resolution-logo.png';
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [email, setEmail] = useState('');
-  const [channelId, setChannelId] = useState('');
-  const [apiKey, setApiKey] = useState('');
-  const [isRegistering, setIsRegistering] = useState(false); // State to track registration mode
   const theme = useTheme();
 
-  const handleRegister = async () => {
-    try {
-      const response = await axios.post('/api/register', { username, email, api_key: channelId, channel_id: apiKey, password });
-      if (response.status === 200) {
-        // If registration is successful, automatically login the user
-        handleLogin();
-      } else {
-        console.error('Registration failed:', response.data.error);
-        // Handle registration failure
-      }
-    } catch (error) {
-      console.error('Error during registration:', error);
-      // Handle registration failure
-    }
-  };
-  
-  const handleLogin = async () => {
-    try {
-      const response = await axios.post('/api/login', { username, password });
-      if (response.status === 200) {
-        onLogin(true);
-      } else {
-        onLogin(false);
-      }
-    } catch (error) {
-      console.error('Error during login:', error);
-      onLogin(false);
-    }
+  const handleLogin = () => {
+    // Make a request to the authentication serverless function
+    fetch('/api/authentication', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
+    })
+      .then(response => {
+        if (response.ok) {
+          // If login is successful, set the isLoggedIn state to true
+          onLogin(true);
+        } else {
+          // If login fails, show an error message
+          console.error('Login failed');
+        }
+      })
+      .catch(error => {
+        console.error('Error logging in:', error);
+      });
   };
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
-      if (isRegistering) {
-        handleRegister();
-      } else {
-        handleLogin();
-      }
+      handleLogin();
     }
   };
 
@@ -70,36 +54,8 @@ const Login = ({ onLogin }) => {
       {/* Inside the Paper component of the Login component*/}
       <Paper elevation={3} style={{ flex: '0 0 30%', padding: '20px', backgroundColor: theme.palette.mode === 'dark' ? '#424242' : 'rgba(255, 255, 255, 0.8)', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
         <Typography variant="h5" gutterBottom>
-          {isRegistering ? 'Register' : 'Login'}
+          Login
         </Typography>
-        {isRegistering && (
-          <>
-            <TextField
-              label="Email"
-              fullWidth
-              margin="normal"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              color={theme.palette.mode === 'dark' ? 'secondary' : 'primary'}
-            />
-            <TextField
-              label="ThingSpeak Channel ID"
-              fullWidth
-              margin="normal"
-              value={channelId}
-              onChange={(e) => setChannelId(e.target.value)}
-              color={theme.palette.mode === 'dark' ? 'secondary' : 'primary'}
-            />
-            <TextField
-              label="ThingSpeak Read API Key"
-              fullWidth
-              margin="normal"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              color={theme.palette.mode === 'dark' ? 'secondary' : 'primary'}
-            />
-          </>
-        )}
         <TextField
           label="Username"
           fullWidth
@@ -118,11 +74,8 @@ const Login = ({ onLogin }) => {
           onKeyPress={handleKeyPress}
           color={theme.palette.mode === 'dark' ? 'secondary' : 'primary'}
         />
-        <Button variant="contained" color="primary" fullWidth onClick={isRegistering ? handleRegister : handleLogin}>
-          {isRegistering ? 'Register' : 'Login'}
-        </Button>
-        <Button onClick={() => setIsRegistering(!isRegistering)} color="secondary">
-          {isRegistering ? 'Already have an account? Login' : 'Don\'t have an account? Register'}
+        <Button variant="contained" color="primary" fullWidth onClick={handleLogin}>
+          Login
         </Button>
       </Paper>
 
