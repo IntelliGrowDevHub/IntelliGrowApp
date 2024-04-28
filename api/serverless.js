@@ -27,14 +27,17 @@ async function fetchDataFromDB() {
 
 // Export the serverless function
 module.exports = async (req, res) => {
-  try {
-    // Fetch data from the database
-    const data = await fetchDataFromDB();
-    
-    // Send the data as JSON response
-    res.status(200).json(data);
-  } catch (error) {
-    // Handle errors
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-};
+    try {
+      // Attempt to connect to the PostgreSQL database
+      await client.connect();
+      // If successful, send back a success response
+      res.status(200).json({ success: true, message: 'Connection test successful' });
+    } catch (error) {
+      // If an error occurs, send back an error response
+      console.error('Error connecting to PostgreSQL database:', error);
+      res.status(500).json({ success: false, message: 'Error connecting to PostgreSQL database' });
+    } finally {
+      // Make sure to close the database connection
+      await client.end();
+    }
+  };
