@@ -39,6 +39,9 @@ const Login = ({ onLogin }) => {
     try {
       // Make a request to the authentication endpoint using GET method
       const response = await axios.get(`/api/authentication?username=${username}&password=${password}`);
+      // Ensure that the URL matches the backend endpoint
+      const url = '/api/authentication?username=' + username + '&password=' + password;
+      console.log('Authentication URL:', url);
       console.log('Authentication Response:', response); // Log the response data
       console.log('Response Headers:', response.headers);
       console.log('Response Data:', response.data);
