@@ -1,62 +1,43 @@
 import React, { useState } from 'react';
-import { TextField, Button, Paper, useTheme, Typography } from '@mui/material';
+import { TextField, Button, Paper, Typography, useTheme } from '@mui/material';
+import axios from 'axios';
+
 import backgroundImage from './intelligrow-high-resolution-logo.png';
-import axios from 'axios'; // Import axios for making HTTP requests
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [connectionStatus, setConnectionStatus] = useState('');
+  const [error, setError] = useState('');
   const theme = useTheme();
-
-  const testConnection = async () => {
-    try {
-      // Attempt to connect to the serverless function
-      await axios.get('/api/serverless');
-      setConnectionStatus('Connection successful!');
-    } catch (error) {
-      console.error('Error connecting to serverless function:', error);
-      setConnectionStatus('Connection failed. Please check logs for details.');
-    }
-  };
-
-  const testDatabaseConnection = async () => {
-    try {
-      // Attempt to connect to the database
-      const response = await axios.get('/api/database-connection');
-      if (response.status === 200) {
-        setConnectionStatus('Database connection successful!');
-      } else {
-        setConnectionStatus('Database connection failed. Please check logs for details.');
-      }
-    } catch (error) {
-      console.error('Error testing database connection:', error);
-      setConnectionStatus('Database connection failed. Please check logs for details.');
-    }
-  };
 
   const handleLogin = async () => {
     try {
-      // Make a request to the authentication endpoint using GET method
-      const response = await axios.get(`/api/authentication?username=${username}&password=${password}`);
-      // Ensure that the URL matches the backend endpoint
-      const url = '/api/authentication?username=' + username + '&password=' + password;
-      console.log('Authentication URL:', url);
-      console.log('Authentication Response:', response); // Log the response data
-      console.log('Response Headers:', response.headers);
-      console.log('Response Data:', response.data);
-      if (response.status === 200 & response.data.success) {
-        // If login is successful, set the isLoggedIn state to true
-        onLogin(true);
+      // Check if there is a server connection
+      const serverResponse = await axios.get('/api/ping');
+      if (serverResponse.status !== 200) {
+        setError('Server connection failed');
+        return;
+      }
+
+      // Check if there is a database connection
+      const dbResponse = await axios.get('/api/ping-database');
+      if (dbResponse.status !== 200) {
+        setError('Database connection failed');
+        return;
+      }
+
+      const response = await axios.post('/api/login', { username, password });
+      if (response.data.success) {
+        onLogin(true); // Login successful
       } else {
-        // If login fails, show an error message
-        console.error('Login failed');
+        setError('Invalid username or password');
+        onLogin(false); // Login failed
       }
     } catch (error) {
       console.error('Error logging in:', error);
+      setError('Internal server error');
+      onLogin(false); // Login failed
     }
-    testConnection();
-    testDatabaseConnection();
   };
 
   const handleKeyPress = (e) => {
@@ -79,8 +60,7 @@ const Login = ({ onLogin }) => {
         </div>
       </div>
 
-      {/* Registration/Login Form */}
-      {/* Inside the Paper component of the Login component*/}
+      {/* Login Form */}
       <Paper elevation={3} style={{ flex: '0 0 30%', padding: '20px', backgroundColor: theme.palette.mode === 'dark' ? '#424242' : 'rgba(255, 255, 255, 0.8)', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
         <Typography variant="h5" gutterBottom>
           Login
@@ -91,7 +71,8 @@ const Login = ({ onLogin }) => {
           margin="normal"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          color={theme.palette.mode === 'dark' ? 'secondary' : 'primary'}
+          onKeyPress={handleKeyPress}
+          color={theme.palette.mode === 'dark' ? 'secondary' : 'primary'} // Apply secondary color in dark mode
         />
         <TextField
           label="Password"
@@ -101,15 +82,13 @@ const Login = ({ onLogin }) => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           onKeyPress={handleKeyPress}
-          color={theme.palette.mode === 'dark' ? 'secondary' : 'primary'}
+          color={theme.palette.mode === 'dark' ? 'secondary' : 'primary'} // Apply secondary color in dark mode
         />
+        {error && <Typography variant="body2" style={{ color: 'red', marginTop: '10px' }}>{error}</Typography>}
         <Button variant="contained" color="primary" fullWidth onClick={handleLogin}>
           Login
         </Button>
-        {/* Render the ConnectionStatus component */}
-        {/*<Typography>{connectionStatus}</Typography>*/}
       </Paper>
-
     </div>
   );
 };
