@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { TextField, Button, Paper, useTheme, Typography } from '@mui/material';
 import backgroundImage from './intelligrow-high-resolution-logo.png';
 import axios from 'axios'; // Import axios for making HTTP requests
@@ -7,15 +7,7 @@ const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [connectionStatus, setConnectionStatus] = useState('');
-  const [databaseConnectionStatus, setDatabaseConnectionStatus] = useState('');
   const theme = useTheme();
-
-  useEffect(() => {
-    // Test the connection status when the component mounts
-    testConnection();
-    // Test the database connection status when the component mounts
-    testDatabaseConnection();
-  }, []);
 
   const testConnection = async () => {
     try {
@@ -31,21 +23,29 @@ const Login = ({ onLogin }) => {
   const testDatabaseConnection = async () => {
     try {
       // Attempt to connect to the database
-      await axios.get('/api/database-connection');
-      setDatabaseConnectionStatus('Database connection successful!');
+      const response = await axios.get('/api/database-connection');
+      if (response.status === 200) {
+        setConnectionStatus('Database connection successful!');
+      } else {
+        setConnectionStatus('Database connection failed. Please check logs for details.');
+      }
     } catch (error) {
       console.error('Error testing database connection:', error);
-      setDatabaseConnectionStatus('Database connection failed. Please check logs for details.');
+      setConnectionStatus('Database connection failed. Please check logs for details.');
     }
   };
 
   const handleLogin = async () => {
-    // Make a request to the authentication endpoint
     try {
+      // Make a request to the authentication endpoint
       const response = await axios.post('/api/authentication', { username, password });
       if (response.status === 200) {
         // If login is successful, set the isLoggedIn state to true
         onLogin(true);
+        // Check connection status after login attempt
+        await testConnection();
+        // Test database connection after login attempt
+        await testDatabaseConnection();
       } else {
         // If login fails, show an error message
         console.error('Login failed');
@@ -104,8 +104,6 @@ const Login = ({ onLogin }) => {
         </Button>
         {/* Render the ConnectionStatus component */}
         <Typography>{connectionStatus}</Typography>
-        {/* Render the DatabaseConnectionStatus component */}
-        <Typography>{databaseConnectionStatus}</Typography>
       </Paper>
 
     </div>
