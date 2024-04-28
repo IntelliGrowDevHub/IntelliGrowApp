@@ -19,12 +19,15 @@ client.connect()
   });
 
 async function authenticateUser(req, res) {
+  console.log('Authentication request received:', req.method, req.query);
   const { method, body } = req;
 
   if (method === 'POST') {
+    console.log('Authenticating user:', username);
     const { username, password } = body;
     try {
       const result = await client.query('SELECT * FROM users WHERE username = $1 AND password = $2', [username, password]);
+      console.log('Database query result:', result.rows);
       if (result.rows.length > 0) {
         res.status(200).json({ success: true });
       } else {
