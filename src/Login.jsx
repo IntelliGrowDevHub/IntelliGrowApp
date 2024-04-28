@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TextField, Button, Paper, useTheme, Typography } from '@mui/material';
 import backgroundImage from './intelligrow-high-resolution-logo.png';
 import axios from 'axios'; // Import axios for making HTTP requests
@@ -8,6 +8,11 @@ const Login = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [connectionStatus, setConnectionStatus] = useState('');
   const theme = useTheme();
+
+  useEffect(() => {
+    // Test the connection status when the component mounts
+    testConnection();
+  }, []);
 
   const testConnection = async () => {
     try {
@@ -20,9 +25,20 @@ const Login = ({ onLogin }) => {
     }
   };
 
-  const handleLogin = async () => {
+  const testDatabaseConnection = async () => {
     try {
-      // Make a request to the authentication endpoint
+      // Attempt to connect to the database
+      await axios.get('/api/database-connection');
+      setConnectionStatus('Database connection successful!');
+    } catch (error) {
+      console.error('Error testing database connection:', error);
+      setConnectionStatus('Database connection failed. Please check logs for details.');
+    }
+  };
+
+  const handleLogin = async () => {
+    // Make a request to the authentication endpoint
+    try {
       const response = await axios.post('/api/authentication', { username, password });
       if (response.status === 200) {
         // If login is successful, set the isLoggedIn state to true
@@ -34,9 +50,6 @@ const Login = ({ onLogin }) => {
     } catch (error) {
       console.error('Error logging in:', error);
     }
-
-    // Check connection status after login attempt
-    testConnection();
   };
 
   const handleKeyPress = (e) => {
