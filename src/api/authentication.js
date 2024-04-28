@@ -21,7 +21,7 @@ client.connect()
 async function authenticateUser(req, res) {
   const { method, body } = req;
 
-  if (method === 'GET') {
+  if (method === 'POST') {
     const { username, password } = body;
     try {
       const result = await client.query('SELECT * FROM users WHERE username = $1 AND password = $2', [username, password]);
