@@ -34,6 +34,8 @@ const Login = ({ onLogin }) => {
     } catch (error) {
       console.error('Error logging in:', error);
     }
+    // Check connection status after login attempt
+  testConnection();
   };
 
   const handleKeyPress = (e) => {
