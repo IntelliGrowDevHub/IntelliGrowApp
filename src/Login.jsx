@@ -38,7 +38,7 @@ const Login = ({ onLogin }) => {
   const handleLogin = async () => {
     try {
       // Make a request to the authentication endpoint using GET method
-      const response = await axios.post(`/api/authentication?username=${username}&password=${password}`);
+      const response = await axios.get(`/api/authentication?username=${username}&password=${password}`);
       if (response.status === 200 & response.data.success) {
         // If login is successful, set the isLoggedIn state to true
         onLogin(true);
@@ -101,7 +101,7 @@ const Login = ({ onLogin }) => {
           Login
         </Button>
         {/* Render the ConnectionStatus component */}
-        <Typography>{connectionStatus}</Typography>
+        {/*<Typography>{connectionStatus}</Typography>*/}
       </Paper>
 
     </div>
