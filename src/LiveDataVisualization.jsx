@@ -84,12 +84,16 @@ const LiveDataVisualization = () => {
       <Typography variant="h5" gutterBottom>
         Live Data Visualization
       </Typography>
-      <Typography variant="body1" gutterBottom>
-        Channel ID: {channelID}
-      </Typography>
-      <Typography variant="body1" gutterBottom>
-        API Key: {apiKey}
-      </Typography>
+      {liveData.channelID && (
+        <Typography variant="body1" gutterBottom>
+          Channel ID: {liveData.channelID}
+        </Typography>
+      )}
+      {liveData.apiKey && (
+        <Typography variant="body1" gutterBottom>
+          API Key: {liveData.apiKey}
+        </Typography>
+      )}
       <Button variant="contained" color="primary" onClick={handlePredict} style={{ marginBottom: '20px' }}>
         Make Prediction
       </Button>
@@ -121,7 +125,7 @@ const LiveDataVisualization = () => {
       ))}
       <Typography style={{ marginTop: '20px' }}>{connectionStatus}</Typography>
     </Paper>
-  );
+  );  
   
 };
 
