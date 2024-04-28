@@ -7,6 +7,7 @@ const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [connectionStatus, setConnectionStatus] = useState('');
+  const [databaseConnectionStatus, setDatabaseConnectionStatus] = useState('');
   const theme = useTheme();
 
   useEffect(() => {
@@ -31,10 +32,10 @@ const Login = ({ onLogin }) => {
     try {
       // Attempt to connect to the database
       await axios.get('/api/database-connection');
-      setConnectionStatus('Database connection successful!');
+      setDatabaseConnectionStatus('Database connection successful!');
     } catch (error) {
       console.error('Error testing database connection:', error);
-      setConnectionStatus('Database connection failed. Please check logs for details.');
+      setDatabaseConnectionStatus('Database connection failed. Please check logs for details.');
     }
   };
 
@@ -103,6 +104,8 @@ const Login = ({ onLogin }) => {
         </Button>
         {/* Render the ConnectionStatus component */}
         <Typography>{connectionStatus}</Typography>
+        {/* Render the DatabaseConnectionStatus component */}
+        <Typography>{databaseConnectionStatus}</Typography>
       </Paper>
 
     </div>
