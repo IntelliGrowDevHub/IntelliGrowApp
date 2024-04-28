@@ -40,6 +40,8 @@ const Login = ({ onLogin }) => {
       // Make a request to the authentication endpoint using GET method
       const response = await axios.get(`/api/authentication?username=${username}&password=${password}`);
       console.log('Authentication Response:', response); // Log the response data
+      console.log('Response Headers:', response.headers);
+      console.log('Response Data:', response.data);
       if (response.status === 200 & response.data.success) {
         // If login is successful, set the isLoggedIn state to true
         onLogin(true);
