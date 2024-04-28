@@ -10,7 +10,13 @@ const client = new Client({
   port: process.env.POSTGRES_PORT,
 });
 
-client.connect();
+client.connect()
+  .then(() => {
+    console.log('Connected to PostgreSQL database');
+  })
+  .catch((error) => {
+    console.error('Error connecting to PostgreSQL database:', error);
+  });
 
 async function authenticateUser(username, password) {
   try {

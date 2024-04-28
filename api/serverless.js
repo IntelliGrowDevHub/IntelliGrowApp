@@ -12,13 +12,7 @@ const client = new Client({
 });
 
 // Connect to the database
-client.connect()
-  .then(() => {
-    console.log('Connected to PostgreSQL database');
-  })
-  .catch((error) => {
-    console.error('Error connecting to PostgreSQL database:', error);
-  });
+client.connect();
 
 // Define your database queries and operations
 async function fetchDataFromDB() {
