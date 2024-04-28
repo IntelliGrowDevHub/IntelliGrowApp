@@ -17,8 +17,8 @@ const LiveDataVisualization = () => {
         if (response.status === 200) {
           const { channelID, apiKey } = response.data;
           setConnectionStatus('Database connection successful!');
-          setLiveData({ ...liveData, channelID, apiKey });
           fetchDataFromThingspeak(channelID, apiKey);
+          setLiveData({ ...liveData, channelID, apiKey });
         } else {
           setConnectionStatus('Database connection failed. Please check logs for details.');
         }
