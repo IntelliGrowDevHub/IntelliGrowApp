@@ -12,6 +12,8 @@ const Login = ({ onLogin }) => {
   useEffect(() => {
     // Test the connection status when the component mounts
     testConnection();
+    // Test the database connection status when the component mounts
+    testDatabaseConnection();
   }, []);
 
   const testConnection = async () => {
