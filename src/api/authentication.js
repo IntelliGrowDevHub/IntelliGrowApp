@@ -18,28 +18,25 @@ client.connect()
     console.error('Error connecting to PostgreSQL database:', error);
   });
 
-async function authenticateUser(username, password) {
-  try {
-    const result = await client.query('SELECT * FROM users WHERE username = $1 AND password = $2', [username, password]);
-    return result.rows.length > 0;
-  } catch (error) {
-    console.error('Error authenticating user:', error);
-    throw error;
+async function authenticateUser(req, res) {
+  const { method, body } = req;
+
+  if (method === 'POST') {
+    const { username, password } = body;
+    try {
+      const result = await client.query('SELECT * FROM users WHERE username = $1 AND password = $2', [username, password]);
+      if (result.rows.length > 0) {
+        res.status(200).json({ success: true });
+      } else {
+        res.status(401).json({ success: false, message: 'Invalid username or password' });
+      }
+    } catch (error) {
+      console.error('Error authenticating user:', error);
+      res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+  } else {
+    res.status(405).json({ success: false, message: 'Method Not Allowed' });
   }
 }
 
-module.exports = async (req, res) => {
-  const { username, password } = req.body;
-
-  try {
-    const isAuthenticated = await authenticateUser(username, password);
-
-    if (isAuthenticated) {
-      res.status(200).json({ success: true });
-    } else {
-      res.status(401).json({ success: false, message: 'Invalid username or password' });
-    }
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Internal Server Error' });
-  }
-};
+module.exports = authenticateUser;

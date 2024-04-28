@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { TextField, Button, Paper, useTheme, Typography } from '@mui/material';
 import backgroundImage from './intelligrow-high-resolution-logo.png';
-import ConnectionStatus from './ConnectionStatus'; // Import the ConnectionStatus component
+import axios from 'axios'; // Import axios for making HTTP requests
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
@@ -9,48 +9,31 @@ const Login = ({ onLogin }) => {
   const [connectionStatus, setConnectionStatus] = useState('');
   const theme = useTheme();
 
-  useEffect(() => {
-    // This effect runs once when the component mounts
-    // Check connection status when the component mounts
-    testConnection();
-  }, []);
-
   const testConnection = async () => {
     try {
       // Attempt to connect to the serverless function
-      const response = await fetch('/api/test-connection');
-      if (response.ok) {
-        setConnectionStatus('Connection successful!');
-      } else {
-        setConnectionStatus('Connection failed. Please check logs for details.');
-      }
+      await axios.get('/api/serverless');
+      setConnectionStatus('Connection successful!');
     } catch (error) {
       console.error('Error connecting to serverless function:', error);
       setConnectionStatus('Connection failed. Please check logs for details.');
     }
   };
 
-  const handleLogin = () => {
-    // Make a request to the authentication serverless function
-    fetch('/api/authentication', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password }),
-    })
-      .then(response => {
-        if (response.ok) {
-          // If login is successful, set the isLoggedIn state to true
-          onLogin(true);
-        } else {
-          // If login fails, show an error message
-          console.error('Login failed');
-        }
-      })
-      .catch(error => {
-        console.error('Error logging in:', error);
-      });
+  const handleLogin = async () => {
+    try {
+      // Make a request to the authentication endpoint
+      const response = await axios.post('/api/authentication', { username, password });
+      if (response.status === 200) {
+        // If login is successful, set the isLoggedIn state to true
+        onLogin(true);
+      } else {
+        // If login fails, show an error message
+        console.error('Login failed');
+      }
+    } catch (error) {
+      console.error('Error logging in:', error);
+    }
   };
 
   const handleKeyPress = (e) => {
@@ -101,7 +84,6 @@ const Login = ({ onLogin }) => {
           Login
         </Button>
         {/* Render the ConnectionStatus component */}
-        <ConnectionStatus />
         <Typography>{connectionStatus}</Typography>
       </Paper>
 
