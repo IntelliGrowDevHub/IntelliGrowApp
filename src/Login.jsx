@@ -43,9 +43,9 @@ const Login = ({ onLogin }) => {
         // If login is successful, set the isLoggedIn state to true
         onLogin(true);
         // Check connection status after login attempt
-        await testConnection();
+        //await testConnection();
         // Test database connection after login attempt
-        await testDatabaseConnection();
+        //await testDatabaseConnection();
       } else {
         // If login fails, show an error message
         console.error('Login failed');
@@ -53,6 +53,8 @@ const Login = ({ onLogin }) => {
     } catch (error) {
       console.error('Error logging in:', error);
     }
+    testConnection();
+    testDatabaseConnection();
   };
 
   const handleKeyPress = (e) => {
