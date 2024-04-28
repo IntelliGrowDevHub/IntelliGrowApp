@@ -37,15 +37,11 @@ const Login = ({ onLogin }) => {
 
   const handleLogin = async () => {
     try {
-      // Make a request to the authentication endpoint
-      const response = await axios.post('/api/authentication', { username, password });
+      // Make a request to the authentication endpoint using GET method
+      const response = await axios.get(`/api/authentication?username=${username}&password=${password}`);
       if (response.status === 200) {
         // If login is successful, set the isLoggedIn state to true
         onLogin(true);
-        // Check connection status after login attempt
-        //await testConnection();
-        // Test database connection after login attempt
-        //await testDatabaseConnection();
       } else {
         // If login fails, show an error message
         console.error('Login failed');
