@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TextField, Button, Paper, useTheme, Typography } from '@mui/material';
 import backgroundImage from './intelligrow-high-resolution-logo.png';
 import axios from 'axios'; // Import axios for making HTTP requests
@@ -9,14 +9,23 @@ const Login = ({ onLogin }) => {
   const [connectionStatus, setConnectionStatus] = useState('');
   const theme = useTheme();
 
-  const testConnection = async () => {
+  useEffect(() => {
+    // Check database connection status when the component mounts
+    testDatabaseConnection();
+  }, []);
+
+  const testDatabaseConnection = async () => {
     try {
-      // Attempt to connect to the serverless function
-      await axios.get('/api/serverless');
-      setConnectionStatus('Connection successful!');
+      // Attempt to connect to the serverless function to test database connection
+      const response = await axios.get('/api/serverless');
+      if (response.data.success) {
+        setConnectionStatus('Database connection successful');
+      } else {
+        setConnectionStatus('Error connecting to database');
+      }
     } catch (error) {
-      console.error('Error connecting to serverless function:', error);
-      setConnectionStatus('Connection failed. Please check logs for details.');
+      console.error('Error testing database connection:', error);
+      setConnectionStatus('Error connecting to database');
     }
   };
 
@@ -34,8 +43,6 @@ const Login = ({ onLogin }) => {
     } catch (error) {
       console.error('Error logging in:', error);
     }
-    // Check connection status after login attempt
-  testConnection();
   };
 
   const handleKeyPress = (e) => {
@@ -85,7 +92,6 @@ const Login = ({ onLogin }) => {
         <Button variant="contained" color="primary" fullWidth onClick={handleLogin}>
           Login
         </Button>
-        {/* Render the ConnectionStatus component */}
         <Typography>{connectionStatus}</Typography>
       </Paper>
 

@@ -11,9 +11,6 @@ const client = new Client({
   port: process.env.POSTGRES_PORT, // Add this line if you have the port in your environment variables
 });
 
-// Connect to the database
-client.connect();
-
 // Define your database queries and operations
 async function fetchDataFromDB() {
   try {
@@ -25,19 +22,34 @@ async function fetchDataFromDB() {
   }
 }
 
+// Function to test database connection
+async function testDatabaseConnection() {
+  try {
+    // Attempt to connect to the PostgreSQL database
+    await client.connect();
+    // If successful, return true
+    return true;
+  } catch (error) {
+    // If an error occurs, return false
+    console.error('Error connecting to PostgreSQL database:', error);
+    return false;
+  } finally {
+    // Make sure to close the database connection
+    await client.end();
+  }
+}
+
 // Export the serverless function
 module.exports = async (req, res) => {
-    try {
-      // Attempt to connect to the PostgreSQL database
-      await client.connect();
-      // If successful, send back a success response
-      res.status(200).json({ success: true, message: 'Connection test successful' });
-    } catch (error) {
-      // If an error occurs, send back an error response
-      console.error('Error connecting to PostgreSQL database:', error);
+  try {
+    const databaseConnected = await testDatabaseConnection();
+    if (databaseConnected) {
+      res.status(200).json({ success: true, message: 'Database connection successful' });
+    } else {
       res.status(500).json({ success: false, message: 'Error connecting to PostgreSQL database' });
-    } finally {
-      // Make sure to close the database connection
-      await client.end();
     }
-  };
+  } catch (error) {
+    console.error('Error testing database connection:', error);
+    res.status(500).json({ success: false, message: 'Error testing database connection' });
+  }
+};
