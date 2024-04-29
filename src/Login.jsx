@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { TextField, Button, Paper, Typography, useTheme, IconButton, InputAdornment } from '@mui/material';
+import { TextField, Button, Paper, Typography, useTheme } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { IconButton, InputAdornment } from '@mui/material';
 import axios from 'axios';
 
 import backgroundImage from './intelligrow-high-resolution-logo.png';
@@ -8,24 +9,27 @@ import backgroundImage from './intelligrow-high-resolution-logo.png';
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [fetchedData, setFetchedData] = useState('');
   const theme = useTheme();
 
   const handleLogin = async () => {
     try {
-      // Send a GET request to the server to check if the user exists
       const response = await axios.get(`/api/login?username=${username}&password=${password}`);
       
       if (response.data.success) {
-        // User authenticated successfully
         onLogin(true);
       } else {
-        // Invalid username or password
         setError('Invalid username or password');
       }
+
+      // Debugging: Log the fetched data
+      console.log('Fetched data:', response.data);
+
+      // Set fetched data in a textbox for debugging
+      setFetchedData(JSON.stringify(response.data));
     } catch (error) {
-      // Internal server error
       console.error('Error logging in:', error);
       setError('Internal server error');
     }
@@ -92,6 +96,17 @@ const Login = ({ onLogin }) => {
           }}
         />
         {error && <Typography variant="body2" style={{ color: 'red', marginTop: '10px' }}>{error}</Typography>}
+        {/* Display fetched data for debugging */}
+        <TextField
+          label="Fetched Data"
+          fullWidth
+          multiline
+          rows={4}
+          variant="outlined"
+          value={fetchedData}
+          disabled
+          style={{ marginTop: '20px' }}
+        />
         <Button variant="contained" color="primary" fullWidth onClick={handleLogin}>
           Login
         </Button>
