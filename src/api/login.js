@@ -6,9 +6,15 @@ export default async function handler(req, res) {
   }
 
   // Extract username and password from query parameters
-  const { username, password } = req.query;
+  let { username, password } = req.query;
+
+  // Trim leading and trailing whitespace
+  username = username.trim();
+  password = password.trim();
 
   try {
+    console.log('Attempting login with username:', username);
+    
     // Query the database to check if the provided credentials are valid
     const result = await sql`
       SELECT * 
@@ -19,9 +25,11 @@ export default async function handler(req, res) {
 
     if (result.rows.length > 0) {
       // User authenticated successfully
+      console.log('Login successful for username:', username);
       return res.status(200).json({ success: true });
     } else {
       // Invalid credentials
+      console.log('Invalid username or password for username:', username);
       return res.status(401).json({ success: false, error: 'Invalid username or password' });
     }
   } catch (error) {
