@@ -8,24 +8,14 @@ export async function isValidCredentials(username, password) {
 
     // Query the database to check if the provided credentials are valid
     const result = await client.query(
-      'SELECT * FROM users WHERE username = $1',
-      [username]
+      'SELECT * FROM users WHERE username = $1 AND password = $2',
+      [username, password]
     );
 
     // Close the database connection
     await client.end();
 
-    if (result.rows.length > 0) {
-      // Compare the hashed password with the one provided by the user
-      const hashedPasswordFromDB = result.rows[0].password;
-      // You would use a library like bcrypt to compare hashed passwords
-      // For demonstration, let's assume the passwords match
-      const isValid = password === hashedPasswordFromDB;
-      return isValid;
-    } else {
-      // User not found
-      return false;
-    }
+    return result.rows.length > 0;
   } catch (error) {
     console.error('Error validating credentials:', error);
     throw error;
