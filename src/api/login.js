@@ -23,6 +23,8 @@ export default async function handler(req, res) {
       LIMIT 1
     `;
 
+    console.log('Result:', result);
+
     if (result.rows.length > 0) {
       // User authenticated successfully
       console.log('Login successful for username:', username);
