@@ -8,24 +8,20 @@ import backgroundImage from './intelligrow-high-resolution-logo.png';
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const theme = useTheme();
 
   const handleLogin = async () => {
     try {
-      // Send a GET request to the server to check if the user exists
       const response = await axios.get(`/api/login?username=${username}&password=${password}`);
       
       if (response.data.success) {
-        // User authenticated successfully
         onLogin(true);
       } else {
-        // Invalid username or password
         setError('Invalid username or password');
       }
     } catch (error) {
-      // Internal server error
       console.error('Error logging in:', error);
       setError('Internal server error');
     }
@@ -43,7 +39,6 @@ const Login = ({ onLogin }) => {
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
-      {/* Image with About Section */}
       <div style={{ flex: '1', position: 'relative', backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.5 }}>
         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', padding: '20px', backgroundColor: theme.palette.mode === 'dark' ? '#424242' : 'rgba(255, 255, 255, 0.8)', maxWidth: '70%', textAlign: 'center' }}>
           <Typography variant="h5" gutterBottom>
@@ -55,7 +50,6 @@ const Login = ({ onLogin }) => {
         </div>
       </div>
 
-      {/* Login Form */}
       <Paper elevation={3} style={{ flex: '0 0 30%', padding: '20px', backgroundColor: theme.palette.mode === 'dark' ? '#424242' : 'rgba(255, 255, 255, 0.8)', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
         <Typography variant="h5" gutterBottom>
           Login
@@ -67,7 +61,7 @@ const Login = ({ onLogin }) => {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           onKeyPress={handleKeyPress}
-          color={theme.palette.mode === 'dark' ? 'secondary' : 'primary'} // Apply secondary color in dark mode
+          color={theme.palette.mode === 'dark' ? 'secondary' : 'primary'}
         />
         <TextField
           label="Password"
@@ -77,7 +71,7 @@ const Login = ({ onLogin }) => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           onKeyPress={handleKeyPress}
-          color={theme.palette.mode === 'dark' ? 'secondary' : 'primary'} // Apply secondary color in dark mode
+          color={theme.palette.mode === 'dark' ? 'secondary' : 'primary'}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
