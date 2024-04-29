@@ -10,8 +10,12 @@ export default async function handler(req, res) {
 
   try {
     // Query the database to check if the provided credentials are valid
-    // Replace 'users' with your actual user table name
-    const result = await sql`SELECT * FROM users WHERE username = ${username} AND password = ${password} LIMIT 1`;
+    const result = await sql`
+      SELECT * 
+      FROM users 
+      WHERE username = ${username} AND password = ${password} 
+      LIMIT 1
+    `;
 
     if (result.rows.length > 0) {
       // User authenticated successfully
