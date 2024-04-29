@@ -27,7 +27,8 @@ const Login = ({ onLogin }) => {
     } catch (error) {
       // Internal server error
       console.error('Error logging in:', error);
-      setError('Internal server error');
+      console.log('Response:', error.response); // Log the response object
+      setError(error.response.data.error || 'Internal server error');
     }
   };
 
