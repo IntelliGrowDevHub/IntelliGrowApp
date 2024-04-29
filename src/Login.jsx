@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TextField, Button, Paper, Typography, useTheme, IconButton, InputAdornment } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { sql } from '@vercel/postgres'; // Import sql from @vercel/postgres library
 import axios from 'axios';
 
 import backgroundImage from './intelligrow-high-resolution-logo.png';
@@ -8,20 +9,36 @@ import backgroundImage from './intelligrow-high-resolution-logo.png';
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
   const [error, setError] = useState('');
   const theme = useTheme();
 
   const handleLogin = async () => {
     try {
-      const response = await axios.get(`/api/login?username=${username}&password=${password}`);
-      
-      if (response.data.success) {
+      // Establish database connection
+      const client = new sql.Client();
+
+      // Connect to the database
+      await client.connect();
+
+      // Query the database to check if the provided credentials are valid
+      const result = await client.query(
+        'SELECT * FROM users WHERE username = $1 AND password = $2',
+        [username, password]
+      );
+
+      // Close the database connection
+      await client.end();
+
+      if (result.rows.length > 0) {
+        // User authenticated successfully
         onLogin(true);
       } else {
+        // Invalid username or password
         setError('Invalid username or password');
       }
     } catch (error) {
+      // Internal server error
       console.error('Error logging in:', error);
       setError('Internal server error');
     }
@@ -39,6 +56,7 @@ const Login = ({ onLogin }) => {
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
+      {/* Image with About Section */}
       <div style={{ flex: '1', position: 'relative', backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.5 }}>
         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', padding: '20px', backgroundColor: theme.palette.mode === 'dark' ? '#424242' : 'rgba(255, 255, 255, 0.8)', maxWidth: '70%', textAlign: 'center' }}>
           <Typography variant="h5" gutterBottom>
@@ -50,6 +68,7 @@ const Login = ({ onLogin }) => {
         </div>
       </div>
 
+      {/* Login Form */}
       <Paper elevation={3} style={{ flex: '0 0 30%', padding: '20px', backgroundColor: theme.palette.mode === 'dark' ? '#424242' : 'rgba(255, 255, 255, 0.8)', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
         <Typography variant="h5" gutterBottom>
           Login
@@ -61,7 +80,7 @@ const Login = ({ onLogin }) => {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           onKeyPress={handleKeyPress}
-          color={theme.palette.mode === 'dark' ? 'secondary' : 'primary'}
+          color={theme.palette.mode === 'dark' ? 'secondary' : 'primary'} // Apply secondary color in dark mode
         />
         <TextField
           label="Password"
@@ -71,7 +90,7 @@ const Login = ({ onLogin }) => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           onKeyPress={handleKeyPress}
-          color={theme.palette.mode === 'dark' ? 'secondary' : 'primary'}
+          color={theme.palette.mode === 'dark' ? 'secondary' : 'primary'} // Apply secondary color in dark mode
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
