@@ -12,32 +12,27 @@ const Login = ({ onLogin }) => {
 
   const handleLogin = async () => {
     try {
-      // Check if there is a server connection
-      const serverResponse = await axios.get('/api/ping');
-      if (serverResponse.status !== 200) {
-        setError('Server connection failed');
-        return;
-      }
-
-      // Check if there is a database connection
-      const dbResponse = await axios.get('/api/ping-database');
-      if (dbResponse.status !== 200) {
-        setError('Database connection failed');
-        return;
-      }
-
+      // Send a POST request to the server to check if the user exists
       const response = await axios.post('/api/login', { username, password });
+      
       if (response.data.success) {
-        onLogin(true); // Login successful
+        // User authenticated successfully
+        onLogin(true);
       } else {
+        // Invalid username or password
         setError('Invalid username or password');
-        onLogin(false); // Login failed
       }
     } catch (error) {
+      // Internal server error
       console.error('Error logging in:', error);
       setError('Internal server error');
-      onLogin(false); // Login failed
     }
+  };
+
+  const handleCreateAccount = () => {
+    // Add logic to create a new user account
+    // This can be implemented based on your application requirements
+    console.log('Create account clicked');
   };
 
   const handleKeyPress = (e) => {
@@ -87,6 +82,9 @@ const Login = ({ onLogin }) => {
         {error && <Typography variant="body2" style={{ color: 'red', marginTop: '10px' }}>{error}</Typography>}
         <Button variant="contained" color="primary" fullWidth onClick={handleLogin}>
           Login
+        </Button>
+        <Button variant="text" color="primary" fullWidth onClick={handleCreateAccount}>
+          Create New Account
         </Button>
       </Paper>
     </div>
