@@ -23,7 +23,7 @@ export async function isValidCredentials(username, password) {
 }
 
 export default async function handler(req, res) {
-  if (req.method == 'GET') {
+  if (req.method === 'GET') {
     return res.status(405).end(); // Method Not Allowed
   }
 
