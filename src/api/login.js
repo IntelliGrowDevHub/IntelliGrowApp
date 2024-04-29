@@ -3,7 +3,7 @@ import { sql } from '@vercel/postgres';
 // login.js
 
 export default async function handler(req, res) {
-    if (req.method === 'POST') {
+    if (req.method === 'GET') {
       // Extract username and password from request body
       const { username, password } = req.body;
   

@@ -17,7 +17,7 @@ const Login = ({ onLogin }) => {
   const handleLogin = async () => {
     try {
       // Send a POST request to the serverless function with username and password
-      const response = await axios.post('/api/login', { username, password });
+      const response = await axios.get('/api/login', { username, password });
 
       if (response.data.success) {
         // User authenticated successfully
