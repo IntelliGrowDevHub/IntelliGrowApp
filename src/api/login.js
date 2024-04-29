@@ -1,12 +1,12 @@
 import { sql } from '@vercel/postgres';
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
+  if (req.method !== 'GET') {
     return res.status(405).end(); // Method Not Allowed
   }
 
-  // Extract username and password from request body
-  const { username, password } = req.body;
+  // Extract username and password from query parameters
+  const { username, password } = req.query;
 
   try {
     // Query the database to check if the provided credentials are valid

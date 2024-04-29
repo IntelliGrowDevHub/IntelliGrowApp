@@ -12,8 +12,8 @@ const Login = ({ onLogin }) => {
 
   const handleLogin = async () => {
     try {
-      // Send a POST request to the server to check if the user exists
-      const response = await axios.post('/api/login', { username, password });
+      // Send a GET request to the server to check if the user exists
+      const response = await axios.get(`/api/login?username=${username}&password=${password}`);
       
       if (response.data.success) {
         // User authenticated successfully
@@ -27,12 +27,6 @@ const Login = ({ onLogin }) => {
       console.error('Error logging in:', error);
       setError('Internal server error');
     }
-  };
-
-  const handleCreateAccount = () => {
-    // Add logic to create a new user account
-    // This can be implemented based on your application requirements
-    console.log('Create account clicked');
   };
 
   const handleKeyPress = (e) => {
@@ -82,9 +76,6 @@ const Login = ({ onLogin }) => {
         {error && <Typography variant="body2" style={{ color: 'red', marginTop: '10px' }}>{error}</Typography>}
         <Button variant="contained" color="primary" fullWidth onClick={handleLogin}>
           Login
-        </Button>
-        <Button variant="text" color="primary" fullWidth onClick={handleCreateAccount}>
-          Create New Account
         </Button>
       </Paper>
     </div>
