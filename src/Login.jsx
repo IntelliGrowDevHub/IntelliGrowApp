@@ -1,4 +1,3 @@
-// Login.jsx
 import React, { useState } from 'react';
 import { TextField, Button, Paper, Typography, useTheme, IconButton, InputAdornment } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
@@ -15,11 +14,7 @@ const Login = ({ onLogin }) => {
 
   const handleLogin = async () => {
     try {
-      // Send a POST request to the server to check if the user exists
-      const response = await axios.post('/api/login', {
-        username,
-        password
-      });
+      const response = await axios.post('/api/login', { username, password });
 
       if (response.data.success) {
         // User authenticated successfully
