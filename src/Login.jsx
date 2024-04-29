@@ -11,7 +11,7 @@ const Login = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const [fetchedData, setFetchedData] = useState('');
+  const [userData, setUserData] = useState(null); // State to store user data
   const theme = useTheme();
 
   const handleLogin = async () => {
@@ -19,16 +19,13 @@ const Login = ({ onLogin }) => {
       const response = await axios.get(`/api/login?username=${username}&password=${password}`);
       
       if (response.data.success) {
+        // User authenticated successfully
         onLogin(true);
+        // Set user data if authentication is successful
+        setUserData(response.data.userData);
       } else {
         setError('Invalid username or password');
       }
-
-      // Debugging: Log the fetched data
-      console.log('Fetched data:', response.data);
-
-      // Set fetched data in a textbox for debugging
-      setFetchedData(JSON.stringify(response.data));
     } catch (error) {
       console.error('Error logging in:', error);
       setError('Internal server error');
@@ -96,17 +93,13 @@ const Login = ({ onLogin }) => {
           }}
         />
         {error && <Typography variant="body2" style={{ color: 'red', marginTop: '10px' }}>{error}</Typography>}
-        {/* Display fetched data for debugging */}
-        <TextField
-          label="Fetched Data"
-          fullWidth
-          multiline
-          rows={4}
-          variant="outlined"
-          value={fetchedData}
-          disabled
-          style={{ marginTop: '20px' }}
-        />
+        {/* Display user data for debugging */}
+        {userData && (
+          <div style={{ marginTop: '20px', textAlign: 'left', width: '100%' }}>
+            <Typography variant="subtitle1">User Data:</Typography>
+            <pre>{JSON.stringify(userData, null, 2)}</pre>
+          </div>
+        )}
         <Button variant="contained" color="primary" fullWidth onClick={handleLogin}>
           Login
         </Button>
