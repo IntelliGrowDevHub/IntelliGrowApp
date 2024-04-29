@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { TextField, Button, Paper, Typography, useTheme } from '@mui/material';
+import { TextField, Button, Paper, Typography, useTheme, IconButton, InputAdornment } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { IconButton, InputAdornment } from '@mui/material';
 import axios from 'axios';
 
 import backgroundImage from './intelligrow-high-resolution-logo.png';
@@ -9,24 +8,24 @@ import backgroundImage from './intelligrow-high-resolution-logo.png';
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
   const [error, setError] = useState('');
-  const [userData, setUserData] = useState(null); // State to store user data
   const theme = useTheme();
 
   const handleLogin = async () => {
     try {
+      // Send a GET request to the server to check if the user exists
       const response = await axios.get(`/api/login?username=${username}&password=${password}`);
       
       if (response.data.success) {
         // User authenticated successfully
         onLogin(true);
-        // Set user data if authentication is successful
-        setUserData(response.data.userData);
       } else {
+        // Invalid username or password
         setError('Invalid username or password');
       }
     } catch (error) {
+      // Internal server error
       console.error('Error logging in:', error);
       setError('Internal server error');
     }
@@ -93,13 +92,6 @@ const Login = ({ onLogin }) => {
           }}
         />
         {error && <Typography variant="body2" style={{ color: 'red', marginTop: '10px' }}>{error}</Typography>}
-        {/* Display user data for debugging */}
-        {userData && (
-          <div style={{ marginTop: '20px', textAlign: 'left', width: '100%' }}>
-            <Typography variant="subtitle1">User Data:</Typography>
-            <pre>{JSON.stringify(userData, null, 2)}</pre>
-          </div>
-        )}
         <Button variant="contained" color="primary" fullWidth onClick={handleLogin}>
           Login
         </Button>
