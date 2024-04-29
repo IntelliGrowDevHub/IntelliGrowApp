@@ -1,5 +1,3 @@
-// Login.jsx
-
 import React, { useState } from 'react';
 import { TextField, Button, Paper, Typography, useTheme, IconButton, InputAdornment } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
@@ -16,15 +14,15 @@ const Login = ({ onLogin }) => {
 
   const handleLogin = async () => {
     try {
-      // Send a POST request to the serverless function with username and password
-      const response = await axios.get('/api/login', { params: {username, password }});
-
+      // Send a GET request to the server to check login credentials
+      const response = await axios.get(`/api/login?username=${username}&password=${password}`);
+      
       if (response.data.success) {
         // User authenticated successfully
         onLogin(true);
       } else {
         // Invalid username or password
-        setError('Invalid username or password');
+        setError(response.data.error);
       }
     } catch (error) {
       // Internal server error
