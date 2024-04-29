@@ -6,7 +6,11 @@ export default async function handler(req, res) {
   }
 
   // Extract username and password from query parameters
-  const { username, password } = req.query;
+  let { username, password } = req.query;
+
+  // Trim leading and trailing whitespace from username and password
+  username = username.trim();
+  password = password.trim();
 
   try {
     // Query the database to check if the provided credentials are valid

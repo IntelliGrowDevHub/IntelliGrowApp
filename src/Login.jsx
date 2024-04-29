@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { TextField, Button, Paper, Typography, useTheme } from '@mui/material';
+import { TextField, Button, Paper, Typography, useTheme, IconButton, InputAdornment } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import axios from 'axios';
 
 import backgroundImage from './intelligrow-high-resolution-logo.png';
@@ -7,6 +8,7 @@ import backgroundImage from './intelligrow-high-resolution-logo.png';
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
   const [error, setError] = useState('');
   const theme = useTheme();
 
@@ -33,6 +35,10 @@ const Login = ({ onLogin }) => {
     if (e.key === 'Enter') {
       handleLogin();
     }
+  };
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -66,12 +72,24 @@ const Login = ({ onLogin }) => {
         <TextField
           label="Password"
           fullWidth
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           margin="normal"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           onKeyPress={handleKeyPress}
           color={theme.palette.mode === 'dark' ? 'secondary' : 'primary'} // Apply secondary color in dark mode
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={handleTogglePasswordVisibility}
+                  edge="end"
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         {error && <Typography variant="body2" style={{ color: 'red', marginTop: '10px' }}>{error}</Typography>}
         <Button variant="contained" color="primary" fullWidth onClick={handleLogin}>
