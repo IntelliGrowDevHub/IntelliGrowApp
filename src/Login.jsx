@@ -1,3 +1,5 @@
+// Login.jsx
+
 import React, { useState } from 'react';
 import { TextField, Button, Paper, Typography, useTheme, IconButton, InputAdornment } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
@@ -14,6 +16,7 @@ const Login = ({ onLogin }) => {
 
   const handleLogin = async () => {
     try {
+      // Send a POST request to the serverless function with username and password
       const response = await axios.post('/api/login', { username, password });
 
       if (response.data.success) {
