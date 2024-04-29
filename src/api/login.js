@@ -1,51 +1,32 @@
 // login.js
-import { Client } from 'pg';
+import { sql } from '@vercel/postgres';
 
 export default async function handler(req, res) {
-  if (req.method !== 'GET') {
+  if (req.method !== 'POST') {
     return res.status(405).end(); // Method Not Allowed
   }
 
-  // Extract username and password from query parameters
-  let { username, password } = req.query;
-
-  // Trim leading and trailing whitespace
-  username = username.trim();
-  password = password.trim();
+  // Extract username and password from the request body
+  const { username, password } = req.body;
 
   try {
-    console.log('Attempting login with username:', username);
-    
-    // Establish database connection
-    const client = new Client({
-      connectionString: process.env.POSTGRES_URL,
-      ssl: {
-        rejectUnauthorized: false, // For development purposes, to ignore self-signed certificate errors
-      },
-    });
-
-    await client.connect();
-
     // Query the database to check if the provided credentials are valid
-    const result = await client.query(
-      'SELECT * FROM users WHERE username = $1 AND password = $2',
-      [username, password]
-    );
-
-    await client.end();
-
-    console.log('Result:', result);
+    const result = await sql`
+      SELECT *
+      FROM users
+      WHERE username = ${username} AND password = ${password}
+      LIMIT 1
+    `;
 
     if (result.rows.length > 0) {
       // User authenticated successfully
-      console.log('Login successful for username:', username);
       return res.status(200).json({ success: true });
     } else {
-      // Invalid credentials
-      console.log('Invalid username or password for username:', username);
+      // Invalid username or password
       return res.status(401).json({ success: false, error: 'Invalid username or password' });
     }
   } catch (error) {
+    // Internal server error
     console.error('Error logging in:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }

@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { TextField, Button, Paper, Typography, useTheme, IconButton, InputAdornment } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { Client } from 'pg'; // Import Client from pg library
 import axios from 'axios';
 
 import backgroundImage from './intelligrow-high-resolution-logo.png';
@@ -16,25 +15,13 @@ const Login = ({ onLogin }) => {
 
   const handleLogin = async () => {
     try {
-      // Establish database connection
-      const client = new Client({
-        connectionString: process.env.POSTGRES_URL,
-        ssl: {
-          rejectUnauthorized: false, // For development purposes, to ignore self-signed certificate errors
-        },
+      // Send a POST request to the server to check if the user exists
+      const response = await axios.post('/api/login', {
+        username,
+        password
       });
 
-      await client.connect();
-
-      // Query the database to check if the provided credentials are valid
-      const result = await client.query(
-        'SELECT * FROM users WHERE username = $1 AND password = $2',
-        [username, password]
-      );
-
-      await client.end();
-
-      if (result.rows.length > 0) {
+      if (response.data.success) {
         // User authenticated successfully
         onLogin(true);
       } else {
