@@ -1,7 +1,8 @@
+// Login.jsx
 import React, { useState } from 'react';
 import { TextField, Button, Paper, Typography, useTheme, IconButton, InputAdornment } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { sql } from '@vercel/postgres'; // Import sql from @vercel/postgres library
+import { Client } from 'pg'; // Import Client from pg library
 import axios from 'axios';
 
 import backgroundImage from './intelligrow-high-resolution-logo.png';
@@ -16,9 +17,13 @@ const Login = ({ onLogin }) => {
   const handleLogin = async () => {
     try {
       // Establish database connection
-      const client = new sql.Client();
+      const client = new Client({
+        connectionString: process.env.POSTGRES_URL,
+        ssl: {
+          rejectUnauthorized: false, // For development purposes, to ignore self-signed certificate errors
+        },
+      });
 
-      // Connect to the database
       await client.connect();
 
       // Query the database to check if the provided credentials are valid
@@ -27,7 +32,6 @@ const Login = ({ onLogin }) => {
         [username, password]
       );
 
-      // Close the database connection
       await client.end();
 
       if (result.rows.length > 0) {
