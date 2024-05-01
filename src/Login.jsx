@@ -1,34 +1,32 @@
 import React, { useState } from 'react';
-import { TextField, Button, Paper, Typography, useTheme, IconButton, InputAdornment } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
-import axios from 'axios';
-
+import { TextField, Button, Paper, Typography, useTheme } from '@mui/material';
 import backgroundImage from './intelligrow-high-resolution-logo.png';
+
+const users = [
+  { username: 'demo', password: 'demo1234', api_key: '7P9PH9JZ7UNI88GJ', channel_ID: '2504684' },
+  { username: 'intelligrow', password: 'success1234', api_key: '7P9PH9JZ7UNI88GJ', channel_ID: '2504684' },
+  { username: 'hydroplants', password: 'data1234', api_key: '7P9PH9JZ7UNI88GJ', channel_ID: '2504684' }
+];
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
-  const [error, setError] = useState('');
   const theme = useTheme();
 
-  const handleLogin = async () => {
-    try {
-      // Send a GET request to the server to check login credentials
-      const response = await axios.get(`/api/login?username=${username}&password=${password}`);
-      
-      if (response.data.success) {
-        // User authenticated successfully
-        onLogin(true);
+  const handleLogin = () => {
+    const user = users.find(user => user.username === username && user.password === password);
+    if (user) {
+      onLogin(true);
+    } else {
+      // Check if the user is new
+      const isNewUser = users.every(user => user.username !== username);
+      if (isNewUser) {
+        // Prompt to register
+        alert('You need to register an account.');
+        // Logic for registration can be added here
       } else {
-        // Invalid username or password
-        setError(response.data.error);
+        alert('Invalid username/password');
       }
-    } catch (error) {
-      // Internal server error
-      console.error('Error logging in:', error);
-      console.log('Response:', error.response); // Log the response object
-      setError(error.response.data.error || 'Internal server error');
     }
   };
 
@@ -36,10 +34,6 @@ const Login = ({ onLogin }) => {
     if (e.key === 'Enter') {
       handleLogin();
     }
-  };
-
-  const handleTogglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
   };
 
   return (
@@ -73,26 +67,13 @@ const Login = ({ onLogin }) => {
         <TextField
           label="Password"
           fullWidth
-          type={showPassword ? 'text' : 'password'}
+          type="password"
           margin="normal"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           onKeyPress={handleKeyPress}
           color={theme.palette.mode === 'dark' ? 'secondary' : 'primary'} // Apply secondary color in dark mode
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  onClick={handleTogglePasswordVisibility}
-                  edge="end"
-                >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
         />
-        {error && <Typography variant="body2" style={{ color: 'red', marginTop: '10px' }}>{error}</Typography>}
         <Button variant="contained" color="primary" fullWidth onClick={handleLogin}>
           Login
         </Button>
