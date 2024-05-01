@@ -57,8 +57,10 @@ const LiveDataVisualization = ({ apiKey, channelID }) => {
       data_fields: data_fields
     })
     .then(response => {
+      //console.log('Prediction response:', response.data); // Log the response data
       console.log('Prediction response:', response.data); // Log the response data
-      setPrediction(response.data.length_prediction);
+      const roundedPrediction = parseFloat(response.data.length_prediction).toFixed(3); // Round off to 3 significant figures
+      setPrediction(`${roundedPrediction} cm`);
       setPredictionError('');
     })
     .catch(error => {
