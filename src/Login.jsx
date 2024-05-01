@@ -1,39 +1,58 @@
 import React, { useState } from 'react';
-import { TextField, Button, Paper, Typography, useTheme } from '@mui/material';
+import { TextField, Button, Paper, Typography, useTheme, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, InputAdornment } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import backgroundImage from './intelligrow-high-resolution-logo.png';
 
-const users = [
-  { username: 'demo', password: 'demo1234', api_key: '7P9PH9JZ7UNI88GJ', channel_ID: '2504684' },
-  { username: 'intelligrow', password: 'success1234', api_key: '7P9PH9JZ7UNI88GJ', channel_ID: '2504684' },
-  { username: 'hydroplants', password: 'data1234', api_key: '7P9PH9JZ7UNI88GJ', channel_ID: '2504684' }
-];
-
 const Login = ({ onLogin }) => {
+  const [loginUsername, setLoginUsername] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [apiKey, setApiKey] = useState('');
+  const [channelId, setChannelId] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const theme = useTheme();
 
+  const [users, setUsers] = useState([
+    { username: 'demo', password: 'demo1234', api_key: '7P9PH9JZ7UNI88GJ', channel_ID: '2504684' },
+    { username: 'intelligrow', password: 'success1234', api_key: '7P9PH9JZ7UNI88GJ', channel_ID: '2504684' },
+    { username: 'hydroplants', password: 'data1234', api_key: '7P9PH9JZ7UNI88GJ', channel_ID: '2504684' }
+  ]);
+
   const handleLogin = () => {
-    const user = users.find(user => user.username === username && user.password === password);
+    const user = users.find(u => u.username === loginUsername && u.password === loginPassword);
     if (user) {
-      onLogin(true);
+      onLogin(true, user.api_key, user.channel_ID);
+      setErrorMessage('');
     } else {
-      // Check if the user is new
-      const isNewUser = users.every(user => user.username !== username);
-      if (isNewUser) {
-        // Prompt to register
-        alert('You need to register an account.');
-        // Logic for registration can be added here
-      } else {
-        alert('Invalid username/password');
-      }
+      setErrorMessage('Incorrect username or password');
     }
+  };
+
+  const handleLogout = () => {
+    onLogin(false, '', ''); // Logout by passing empty strings for apiKey and channelID
+  };
+
+  const handleRegisterSubmit = () => {
+    setIsDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setIsDialogOpen(false);
   };
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
-      handleLogin();
+      handleLogin(loginUsername, loginPassword);
     }
+  };
+
+  const handleShowPassword = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -55,29 +74,60 @@ const Login = ({ onLogin }) => {
         <Typography variant="h5" gutterBottom>
           Login
         </Typography>
+        {errorMessage && (
+          <Typography variant="body2" color="error" gutterBottom>
+            {errorMessage}
+          </Typography>
+        )}
         <TextField
           label="Username"
           fullWidth
           margin="normal"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          value={loginUsername}
+          onChange={(e) => setLoginUsername(e.target.value)}
           onKeyPress={handleKeyPress}
           color={theme.palette.mode === 'dark' ? 'secondary' : 'primary'} // Apply secondary color in dark mode
         />
         <TextField
           label="Password"
           fullWidth
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           margin="normal"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={loginPassword}
+          onChange={(e) => setLoginPassword(e.target.value)}
           onKeyPress={handleKeyPress}
           color={theme.palette.mode === 'dark' ? 'secondary' : 'primary'} // Apply secondary color in dark mode
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton onClick={handleShowPassword} edge="end">
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
-        <Button variant="contained" color="primary" fullWidth onClick={handleLogin}>
+        <Button variant="contained" color="primary" fullWidth onClick={() => handleLogin(loginUsername, loginPassword)}>
           Login
         </Button>
+        <Typography variant="body2" style={{ marginTop: '10px' }}>
+          Don't have an account? <span style={{ cursor: 'pointer', color: theme.palette.primary.main }} onClick={() => setIsDialogOpen(true)}>Register</span>
+        </Typography>
       </Paper>
+      {/* Registration Dialog */}
+      <Dialog open={isDialogOpen} onClose={handleDialogClose}>
+        <DialogTitle>Registration Unavailable</DialogTitle>
+        <DialogContent>
+          <Typography>
+            The registration page is currently unavailable. Please try again later.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

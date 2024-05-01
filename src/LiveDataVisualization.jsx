@@ -1,65 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
-import { Paper, Typography, Button, Snackbar } from '@mui/material'; // Remove unused imports
+import { Paper, Typography, Button, Grid, Snackbar, MenuItem, Select } from '@mui/material';
 import axios from 'axios';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import TrackChangesIcon from '@mui/icons-material/TrackChanges';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
-const LiveDataVisualization = () => {
+const LiveDataVisualization = ({ apiKey, channelID }) => {
   const [liveData, setLiveData] = useState({});
   const [prediction, setPrediction] = useState('');
   const [predictionError, setPredictionError] = useState('');
-  const [connectionStatus, setConnectionStatus] = useState('');
+  const [data_fields, setDataFields] = useState({
+    'day': 21,
+    'ph': 7,
+    'tds': 950,
+  });
+  const [chartType, setChartType] = useState('line'); // Default chart type
   const fieldColors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300'];
 
   useEffect(() => {
-    const fetchDataFromDB = async () => {
+    if (!apiKey || !channelID) return;
+
+    const fetchData = async () => {
       try {
-        const response = await axios.get('/api/serverless');
+        const response = await axios.get(
+          `https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${apiKey}&results=20`
+        );
         if (response.status === 200) {
-          const { channelID, apiKey } = response.data;
-          setConnectionStatus('Database connection successful!');
-          fetchDataFromThingspeak(channelID, apiKey);
-          setLiveData({ ...liveData, channelID, apiKey });
-        } else {
-          setConnectionStatus('Database connection failed. Please check logs for details.');
+          const newData = {};
+          response.data.feeds.forEach(feed => {
+            Object.keys(feed).forEach(key => {
+              if (key.startsWith('field')) {
+                if (!newData[key]) newData[key] = [];
+                newData[key].push({
+                  time: new Date(feed.created_at).toLocaleTimeString(),
+                  value: parseFloat(feed[key]),
+                });
+              }
+            });
+          });
+          setLiveData(newData);
         }
       } catch (error) {
-        console.error('Error fetching data from database:', error);
-        setConnectionStatus('Database connection failed. Please check logs for details.');
+        console.error('Error fetching data:', error);
+        setPredictionError('Failed to fetch data: ' + error.message);
       }
     };
 
-    fetchDataFromDB();
-  }, []);
-
-  const fetchDataFromThingspeak = async (channelID, apiKey) => {
-    try {
-      const response = await axios.get(
-        `https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${apiKey}&results=20`
-      );
-      if (response.status === 200) {
-        const newData = {};
-        response.data.feeds.forEach(feed => {
-          Object.keys(feed).forEach(key => {
-            if (key.startsWith('field')) {
-              if (!newData[key]) newData[key] = [];
-              newData[key].push({
-                time: new Date(feed.created_at).toLocaleTimeString(),
-                value: parseFloat(feed[key]),
-              });
-            }
-          });
-        });
-        setLiveData(newData);
-      }
-    } catch (error) {
-      console.error('Error fetching data from ThingSpeak:', error);
-      setPredictionError('Failed to fetch data from ThingSpeak: ' + error.message);
-    }
-  };
+    const interval = setInterval(fetchData, 10000);
+    fetchData();
+    return () => clearInterval(interval);
+  }, [apiKey, channelID]);
 
   const handlePredict = () => {
     axios.post('https://flask-ten-smoky.vercel.app/predict', {
-      data_fields: liveData, // Assuming liveData contains the necessary data for prediction
+      data_fields: data_fields
     })
     .then(response => {
       console.log('Prediction response:', response.data); // Log the response data
@@ -78,24 +73,49 @@ const LiveDataVisualization = () => {
         setPredictionError('Error: ' + error.message);
       }
     });
-  };  
+  };
 
   return (
-    <Paper elevation={3} style={{ padding: '20px', margin: '20px' }}>
-      <Typography variant="h5" gutterBottom>
-        Live Data Visualization
+    <Paper elevation={3} style={{ padding: '20px', margin: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <Typography variant="h4" gutterBottom style={{ textAlign: 'center' }}>
+        Welcome to IntelliGrow's Visualization
       </Typography>
-      {liveData.channelID && (
-        <Typography variant="body1" gutterBottom>
-          Channel ID: {liveData.channelID}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginBottom: '20px' }}>
+        <Typography variant="body1" gutterBottom style={{ display: 'flex', alignItems: 'left' }}>
+          <NotificationsIcon style={{ marginRight: '10px' }} /> Receive alert notifications
         </Typography>
-      )}
-      {liveData.apiKey && (
-        <Typography variant="body1" gutterBottom>
-          API Key: {liveData.apiKey}
+        <Typography variant="body1" gutterBottom style={{ display: 'flex', alignItems: 'center' }}>
+          <TrackChangesIcon style={{ marginRight: '10px' }} /> Track your data here
         </Typography>
-      )}
-      <Button variant="contained" color="primary" onClick={handlePredict} style={{ marginBottom: '20px' }}>
+        <Typography variant="body1" gutterBottom style={{ display: 'flex', alignItems: 'center' }}>
+          <AccessTimeIcon style={{ marginRight: '10px' }} /> 24/7 real-time monitoring
+        </Typography>
+      </div>
+      <Grid container spacing={4} style={{ alignSelf: 'stretch' }}>
+        {Object.keys(liveData).map((field, idx) => (
+          <Grid item xs={12} md={6} key={field}>
+            <Typography variant="h6">{`Field ${field.replace('field', '')} Data`}</Typography>
+            <LineChart width={500} height={300} data={liveData[field]} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+              <XAxis dataKey="time" />
+              <YAxis />
+              <CartesianGrid strokeDasharray="3 3" />
+              <Tooltip />
+              <Legend />
+              <Line type={chartType} dataKey="value" stroke={fieldColors[idx % fieldColors.length]} activeDot={{ r: 8 }} />
+            </LineChart>
+          </Grid>
+        ))}
+      </Grid>
+      <Select
+        value={chartType}
+        onChange={(e) => setChartType(e.target.value)}
+        style={{ marginTop: '20px' }}
+      >
+        <MenuItem value="line">Line Chart</MenuItem>
+        <MenuItem value="area">Area Chart</MenuItem>
+        <MenuItem value="scatter">Scatter Plot</MenuItem>
+      </Select>
+      <Button variant="contained" color="primary" onClick={handlePredict} style={{ marginTop: '20px' }}>
         Make Prediction
       </Button>
       <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
@@ -111,23 +131,8 @@ const LiveDataVisualization = () => {
           />
         )}
       </div>
-      {Object.keys(liveData).map((field, idx) => (
-        <div key={field} style={{ marginTop: '20px' }}>
-          <Typography variant="h6">{`Field ${field.replace('field', '')} Data`}</Typography>
-          <LineChart width={500} height={300} data={liveData[field]} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-            <XAxis dataKey="time" />
-            <YAxis />
-            <CartesianGrid strokeDasharray="3 3" />
-            <Tooltip />
-            <Legend />
-            <Line type="monotone" dataKey="value" stroke={fieldColors[idx % fieldColors.length]} activeDot={{ r: 8 }} />
-          </LineChart>
-        </div>
-      ))}
-      <Typography style={{ marginTop: '20px' }}>{connectionStatus}</Typography>
     </Paper>
-  );  
-  
+  );
 };
 
 export default LiveDataVisualization;
