@@ -21,6 +21,7 @@ const App = () => {
   };
 
   const handleLogout = () => {
+    setDarkMode(false); // Turn off dark mode when logout is clicked
     setLoggedIn(false);
     setApiKey('');
     setChannelID('');

@@ -23,6 +23,7 @@ const LiveDataVisualization = ({apiKey, channelID}) => {
   const [open, setOpen] = useState(false);
   const [day, setDay] = useState('');
   const [dataFields, setDataFields] = useState(initialDataFields);
+  const [loading, setLoading] = useState(false); // Added loading state
   const fieldColors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300'];
 
   useEffect(() => {
@@ -71,9 +72,11 @@ const LiveDataVisualization = ({apiKey, channelID}) => {
   };
 
   const handlePredict = () => {
+    setLoading(true); // Set loading to true when prediction is started
     const dayValue = parseInt(day, 10);
     if (isNaN(dayValue)) {
       setPredictionError('Please enter a valid day.');
+      setLoading(false); // Set loading to false when prediction is done
       return;
     }
 
@@ -89,10 +92,12 @@ const LiveDataVisualization = ({apiKey, channelID}) => {
       .then(response => {
         setPrediction(parseFloat(response.data.length_prediction).toFixed(2));
         setPredictionError('');
+        setLoading(false); // Set loading to false when prediction is done
       })
       .catch(error => {
         console.error('Error:', error.message);
         setPredictionError('Error: ' + error.message);
+        setLoading(false); // Set loading to false when prediction is done
       });
   };
 
