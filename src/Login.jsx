@@ -20,7 +20,8 @@ const Login = ({ onLogin }) => {
   const [users, setUsers] = useState([
     { username: 'demo', password: 'demo1234', api_key: '7P9PH9JZ7UNI88GJ', channel_ID: '2504684' },
     { username: 'intelligrow', password: 'success1234', api_key: '7P9PH9JZ7UNI88GJ', channel_ID: '2504684' },
-    { username: 'hydroplants', password: 'data1234', api_key: '7P9PH9JZ7UNI88GJ', channel_ID: '2504684' }
+    { username: 'hydroplants', password: 'data1234', api_key: '7P9PH9JZ7UNI88GJ', channel_ID: '2504684' },
+    { username: 'indoor', password: 'np1234', api_key: 'UTV3CHC6J7H0EJWY', channel_ID: '2411723'}
   ]);
 
   const handleLogin = () => {
