@@ -170,7 +170,7 @@ const LiveDataVisualization = ({apiKey, channelID}) => {
         </div>
         <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
           {prediction && (
-            <Typography variant="subtitle1">Prediction: {parseFloat(prediction).toFixed(2)}</Typography>
+            <Typography variant="subtitle1">Prediction: {parseFloat(prediction).toFixed(2)} cm</Typography>
           )}
           {predictionError && (
             <Snackbar
